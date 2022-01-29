@@ -1,9 +1,9 @@
-from turtle import title
 import uuid
 
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 class paymentScheme(models.Model):
     pilotPayout = models.IntegerField(
@@ -32,12 +32,19 @@ class paymentScheme(models.Model):
     )
 
 class ore(models.Model):
-    type = models.CharField()
+    type = models.CharField(max_length=120)
     rawPrice = models.IntegerField()
     refinedPrice = models.IntegerField()
     refineTime = models.FloatField()
     refineCost = models.FloatField()
     refineYield = models.FloatField()
+
+    def __str__(self):
+        return self.type
+    
+class oreCollected(models.Model):
+        ore = models.ManyToManyField(ore)
+        amount = models.IntegerField(validators=[MinValueValidator(0)])
 
 class refineryOreMod(models.Model):
     yieldMod = models.FloatField()
@@ -62,6 +69,9 @@ class refinery(models.Model):
     tarMod = models.ManyToManyField(refineryOreMod)
     titMod = models.ManyToManyField(refineryOreMod)
     tunMod = models.ManyToManyField(refineryOreMod)
+
+    def __str__(self):
+        return self.name
     
 
 class refineryMethod(models.Model):
@@ -70,10 +80,13 @@ class refineryMethod(models.Model):
     costMod = models.FloatField()
     timeMod = models.FloatField()
 
+    def __str__(self):
+        return self.name
+
 
 class profile(models.Model):
     user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
-    #authorizedPilots = list of people
+    authorizedPilots = models.ManyToManyField(User)
 
 class refineryJob(models.Model):
 
@@ -83,15 +96,21 @@ class refineryJob(models.Model):
         ready = 3, 'Ready'
         delivered = 4, 'Delivered'
         failed = 5, 'Failed'
-
-    #ore = orestuff
-    #method = method stuff
-    #refinery = refinery location
-    #pilot = user
-    #crew = 0-3 users
-    #scouts = users
-    #security = users
-    #payout = something, not sure how to handel this yet
+    
+    ores = models.ManyToManyField(oreCollected)
+    method = models.ForeignKey(refineryMethod)
+    refinery = models.ForeignKey(refinery)
+    pilot = models.ForeignKey(User)
+    crew = models.ManyToManyField(User, null=True)      # Find way to limit to only 3 members
+    scouts = models.ManyToManyField(User, null=True)
+    security = models.ManyToManyField(User, null=True)
     status = models.PositiveSmallIntegerField(choices=statusOpt.choices, default=statusOpt.mining)
+    cscuYield = models.IntegerField(validators=[MinValueValidator(0)])
+    time = models.IntegerField()
+    cost = models.IntegerField()
+    note = models.CharField(max_length=560, null=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def __str__(self):
+        return self.id
