@@ -1,4 +1,4 @@
-# bsit
+# Banu Systems Industry Tools
 
 The main goal of this project is to enable co-op industry game play in Star Citizen. As of now there is no easy way to calculate payouts, keep track of refinery jobs, or see how much you owe/are owed. This project looks to take care of that and will evolve as new content is added into the game. 
 
@@ -31,3 +31,9 @@ The main goal of this project is to enable co-op industry game play in Star Citi
  - API for getting jobs owed (discord bots or the like)
  - Daily/weekly/monthly leader boards
  - Data aggregation of locations and ore amounts
+ 
+<br>
+
+*** OTHERS ***
+
+ - Cluster calculator. Lets users input multiple rocks to get over all value and SCU
